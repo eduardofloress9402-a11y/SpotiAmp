@@ -5,3 +5,5 @@
 @media(max-width:600px){.workspace{width:100%}}
 .lcd-play svg{display:block;width:9px;height:12px;fill:currentColor}.playlist-panel .titlebar{min-height:24px}#open-files{height:auto;min-height:17px;padding:2px 4px;font-size:8px;letter-spacing:0}
 @media(max-width:600px){.playlist-panel .titlebar{min-height:29px}#open-files{min-height:24px}}
+/* Direct frame updates: CSS interpolation would blur the percussion attacks. */
+.spectrum{gap:1px;padding:0;isolation:isolate}.spectrum i{transition:none;background:repeating-linear-gradient(to top,transparent 0 2px,#000a02 2px 3px),linear-gradient(to top,#299918 0%,#6be32b 65%,#d8e75c 100%)}.spectrum-peak{position:absolute;z-index:1;height:1px;background:#d3e88b;pointer-events:none;transition:none}#spectrum-message{z-index:2}

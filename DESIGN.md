@@ -21,3 +21,7 @@ Se eliminan botones de ventana ficticios y el temporizador demo. La fuente se el
 ## Skin clásico (referencia nueva)
 
 Se reemplaza el layout alto por tres módulos compactos: player con reloj/espectro izquierdo y título/volumen derecho; ecualizador con preamp y diez bandas (60–16K, incluida 14K), curva de ganancias, ON/OFF y presets; playlist de una línea con artista/título/duración y selección azul. Chasis violeta grisáceo, biseles plateados, barras doradas y verde de fósforo. Tipografía de sistema para no depender de fuentes remotas. Los controles se amplían en móvil manteniendo el orden del Winamp clásico; conexión y selector de fuente quedan fuera del chasis. No se incluyen botones de cerrar/minimizar ficticios. Los presets y bypass son funcionales en audio local; quedan deshabilitados con Spotify.
+
+## Analizador dinámico
+
+32 bandas logarítmicas entre 45 Hz y 16 kHz (ajustadas al sample rate), FFT de 2048 muestras y suavizado del analizador de 0,08. Magnitudes reales en dB, rango visual de −78 a −18 dB y compensación fija de agudos de hasta 6 dB. Ataque inmediato, caída exponencial de 85 ms y marcadores de pico con retención breve y caída independiente del refresco. No se interpolan las alturas con CSS y no se generan datos aleatorios; silencio y pausa vuelven a cero. El análisis no modifica el volumen ni el audio reproducido.

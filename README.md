@@ -57,3 +57,7 @@ python3 scripts/check_mobile.py
 ```
 
 `BASE_URL` permite probar otra dirección, incluida una subruta. Esta prueba genera archivos WAV temporales y verifica reproducción, pausa, stop, seek, anterior/siguiente, shuffle, repetición al finalizar, volumen, respuesta de filtros EQ, preamplificación, analizador, búsqueda, offline y tamaños 320/390/430/1440px. Las solicitudes Spotify se comprueban con respuestas simuladas; no se probó una cuenta Premium real. No se verificó instalación en un teléfono físico.
+
+### Analizador estilo Winamp
+
+El espectro usa 32 bandas logarítmicas, respuesta rápida y marcadores de pico. Se mide el audio real después del EQ y antes del volumen de salida; no es una animación automática. Prueba adicional con pulsos de graves/agudos y silencio: `python3 scripts/check_spectrum.py` (mismos requisitos y BASE_URL que la prueba móvil). La respuesta depende de la grabación; Spotify sigue sin exponer su señal para análisis.

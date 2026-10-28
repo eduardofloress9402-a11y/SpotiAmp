@@ -7,8 +7,8 @@ export class LocalAudio {
  }
  async init(){
   if(!this.context){const Context=window.AudioContext||window.webkitAudioContext;if(!Context)throw new Error('Este navegador no permite procesar audio. Probá con Chrome o Safari actualizado.');
-   this.context=new Context();this.source=this.context.createMediaElementSource(this.audio);this.preamp=this.context.createGain();this.preamp.gain.value=1;this.filters=bands.map(f=>{const filter=this.context.createBiquadFilter();filter.type='peaking';filter.frequency.value=f;filter.Q.value=1;return filter;});this.analyser=this.context.createAnalyser();this.analyser.fftSize=256;this.master=this.context.createGain();this.master.gain.value=this.level;
-   let node=this.source;for(const next of [this.preamp,...this.filters,this.analyser,this.master,this.context.destination]){node.connect(next);node=next;}this.data=new Uint8Array(this.analyser.frequencyBinCount);
+   this.context=new Context();this.source=this.context.createMediaElementSource(this.audio);this.preamp=this.context.createGain();this.preamp.gain.value=1;this.filters=bands.map(f=>{const filter=this.context.createBiquadFilter();filter.type='peaking';filter.frequency.value=f;filter.Q.value=1;return filter;});this.analyser=this.context.createAnalyser();this.analyser.fftSize=2048;this.analyser.smoothingTimeConstant=.08;this.analyser.minDecibels=-90;this.analyser.maxDecibels=-18;this.master=this.context.createGain();this.master.gain.value=this.level;
+   let node=this.source;for(const next of [this.preamp,...this.filters,this.analyser,this.master,this.context.destination]){node.connect(next);node=next;}this.data=new Float32Array(this.analyser.frequencyBinCount);
   }await this.context.resume();
  }
  async play(track){await this.init();if(track&&this.audio.src!==track.url){this.audio.src=track.url;this.audio.load();}if(!this.audio.src)throw new Error('Primero agregá una canción desde + ARCHIVOS.');await this.audio.play();}
