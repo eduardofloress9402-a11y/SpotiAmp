@@ -33,3 +33,16 @@ OAuth Authorization Code con PKCE y validación de `state`. Client ID en localSt
 ## Verificación
 
 Pruebas unitarias: filtrado, formato temporal y conversión de respuestas Spotify. Se comprobó con Chromium la búsqueda demo, selección, pausa, vacío, shuffle, EQ, diálogo y diseño móvil. La autorización y reproducción reales están pendientes de configurar el Client ID y probar con una cuenta Spotify elegible.
+
+## Instalar en el celular (PWA)
+
+La vista móvil muestra directamente el reproductor, con controles táctiles y soporte para áreas seguras. Incluye manifest, iconos y service worker. No requiere una tienda de aplicaciones.
+
+1. Publicá este repositorio como sitio estático HTTPS (por ejemplo Netlify; directorio de publicación `.`; sin comando de build obligatorio).
+2. Abrí la URL publicada en el teléfono. `127.0.0.1` apunta al propio teléfono y no al servidor de tu PC.
+3. Android/Chrome: botón de instalación de SpotiAmp o menú ⋮ → Instalar aplicación / Agregar a pantalla principal. iPhone/Safari: Compartir → Agregar a inicio.
+4. Registrá también la URL HTTPS publicada con `/` final en las Redirect URIs de Spotify.
+
+El caché guarda únicamente la interfaz local. No almacena respuestas ni tokens de Spotify. Después de la primera visita, el modo demo puede abrirse sin Internet; la búsqueda y el control Spotify requieren conexión. Los tokens de sesión no necesariamente se comparten entre el navegador y la app instalada: puede ser necesario volver a conectar Spotify.
+
+La instalación efectiva en Android/iOS requiere un dispositivo y despliegue HTTPS; no fue verificada en un teléfono físico. Se verificaron en Chromium 320, 390, 430 y 1440px, manifest, recursos y demo offline. Prueba opcional con Python Playwright y Chromium: `python3 scripts/check_mobile.py` con el servidor iniciado; `BASE_URL` permite cambiar la URL.

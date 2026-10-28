@@ -9,3 +9,7 @@ Referencia: reproductores Winamp de los 2000 y captura aportada por el usuario. 
 - Bordes biselados, líneas dobles y controles metálicos; sombra verde muy tenue.
 - Estados: demo explícita sin audio, conectado, reproducción, pausado, búsqueda, vacío y error legible.
 - Botones etiquetados, foco visible, rangos accesibles y animación desactivada con prefers-reduced-motion.
+
+## Aplicación móvil
+
+Hasta 600px se oculta la introducción y se prioriza el chasis de borde a borde. Transporte de al menos 44px de alto; búsqueda de 16px para evitar zoom automático de iOS; volumen en su propia fila. Márgenes seguros con env(safe-area-inset-*), viewport-fit=cover y lista con scroll propio. Instalable como PWA standalone con icono original de rayo y pantalla de arranque carbón. Los estados y la lógica Spotify son compartidos con escritorio.
