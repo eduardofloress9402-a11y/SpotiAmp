@@ -13,3 +13,7 @@ Referencia: reproductores Winamp de los 2000 y captura aportada por el usuario. 
 ## Aplicación móvil
 
 Hasta 600px se oculta la introducción y se prioriza el chasis de borde a borde. Transporte de al menos 44px de alto; búsqueda de 16px para evitar zoom automático de iOS; volumen en su propia fila. Márgenes seguros con env(safe-area-inset-*), viewport-fit=cover y lista con scroll propio. Instalable como PWA standalone con icono original de rayo y pantalla de arranque carbón. Los estados y la lógica Spotify son compartidos con escritorio.
+
+## Controles funcionales (v3)
+
+Se eliminan botones de ventana ficticios y el temporizador demo. La fuente se elige explícitamente: archivos locales o Spotify. Los iconos de transporte son SVG propios para evitar emojis de cada plataforma. El chasis usa bordes ridge, LCD verde intenso y controles ámbar, aproximando la referencia aportada. Todos los controles interactivos invocan acciones reales; los controles que no están disponibles muestran estado disabled y una explicación. El ecualizador y analizador son reales solo con archivos locales; Spotify no expone la señal de audio.
