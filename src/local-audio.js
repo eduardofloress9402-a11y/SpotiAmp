@@ -1,4 +1,4 @@
-export const bands=[60,170,310,600,1000,3000,6000,12000,16000];
+export const bands=[60,170,310,600,1000,3000,6000,12000,14000,16000];
 export class LocalAudio {
  constructor(onUpdate,onEnded,onError){
   this.audio=new Audio();this.audio.preload='metadata';this.audio.volume=1;this.level=.7;

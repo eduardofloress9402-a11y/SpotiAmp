@@ -20,7 +20,7 @@ Tocá **+ ARCHIVOS** para seleccionar MP3, WAV u otros formatos compatibles. Pod
 - Anterior/siguiente recorren la biblioteca completa; shuffle evita repetir inmediatamente la pista actual cuando hay más de una.
 - Repetir vuelve a reproducir la pista al finalizar; sin repetir, avanza hasta el final de la biblioteca.
 - El buscador filtra los archivos por canción o artista.
-- Volumen y preamplificador usan GainNode; las nueve bandas aplican filtros BiquadFilter a la señal. RESET EQ devuelve preamplificador y bandas a 0 dB.
+- Volumen y preamplificador usan GainNode; las diez bandas aplican filtros BiquadFilter a la señal. RESET EQ devuelve preamplificador y bandas a 0 dB. ON/OFF aplica o evita el procesamiento y los presets (graves, rock, voces) ajustan los filtros reales. La curva representa las ganancias configuradas por banda.
 - El analizador obtiene el espectro real de la señal. No hay animación simulada.
 - Los controles sin pista quedan deshabilitados. Los archivos y la biblioteca no persisten al cerrar o recargar; deben seleccionarse nuevamente. La compatibilidad con formatos depende del navegador.
 

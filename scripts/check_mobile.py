@@ -33,6 +33,10 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
   eq=page.locator('.equalizer input').nth(4)
   assert eq.is_enabled();eq.evaluate("e=>{e.value=-12;e.dispatchEvent(new Event('input'))}")
   assert 'dB' in page.locator('#status').inner_text()
+  page.locator('#eq-preset').select_option('bass');assert page.locator('.equalizer input').nth(1).input_value()=='8'
+  page.locator('#eq-power').click();assert page.locator('#eq-power').get_attribute('aria-pressed')=='false'
+  assert page.locator('#eq-curve-line').get_attribute('d').startswith('M0 13')
+  page.locator('#eq-power').click();assert page.locator('#eq-power').get_attribute('aria-pressed')=='true'
   page.locator('#eq-reset').click();assert eq.input_value()=='0'
   page.locator('#next').click();page.wait_for_function("document.querySelector('#track-title').textContent.includes('Second')")
   page.locator('#previous').click();page.wait_for_function("document.querySelector('#track-title').textContent.includes('Sine')")
@@ -74,7 +78,7 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
  page.locator('#connect').click();assert page.locator('#redirect-uri').input_value()==base;page.locator('#close-settings').click()
  page.locator('#source').select_option('local')
  page.evaluate('navigator.serviceWorker.ready')
- assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v3')))).then(c=>c.keys()).then(k=>k.length===11)")
+ assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v4')))).then(c=>c.keys()).then(k=>k.length===11)")
  context.set_offline(True);page.reload(wait_until='load');page.locator('#source').select_option('local')
  assert page.locator('#open-files').is_visible()
  page.locator('#files').set_input_files(files)
