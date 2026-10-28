@@ -46,3 +46,9 @@ La vista móvil muestra directamente el reproductor, con controles táctiles y s
 El caché guarda únicamente la interfaz local. No almacena respuestas ni tokens de Spotify. Después de la primera visita, el modo demo puede abrirse sin Internet; la búsqueda y el control Spotify requieren conexión. Los tokens de sesión no necesariamente se comparten entre el navegador y la app instalada: puede ser necesario volver a conectar Spotify.
 
 La instalación efectiva en Android/iOS requiere un dispositivo y despliegue HTTPS; no fue verificada en un teléfono físico. Se verificaron en Chromium 320, 390, 430 y 1440px, manifest, recursos y demo offline. Prueba opcional con Python Playwright y Chromium: `python3 scripts/check_mobile.py` con el servidor iniciado; `BASE_URL` permite cambiar la URL.
+
+## GitHub Pages
+
+En Settings → Pages: Source **Deploy from a branch**, Branch **main**, carpeta **/ (root)** y Save. Las rutas relativas permiten servir tanto la raíz como `/SpotiAmp/`; manifest y service worker quedan limitados al directorio de la app.
+
+Dirección esperada después del despliegue: `https://eduardofloress9402-a11y.github.io/SpotiAmp/`. Registrá esa misma dirección completa con `/` final como Redirect URI en Spotify. Activar Pages y completar su despliegue es un paso separado de subir el código.

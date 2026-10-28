@@ -7,4 +7,4 @@ addEventListener('beforeinstallprompt',event=>{event.preventDefault();prompt=eve
 addEventListener('appinstalled',()=>{button.hidden=true;prompt=null;});
 button.addEventListener('click',async()=>{if(prompt){await prompt.prompt();await prompt.userChoice;prompt=null;}else dialog.showModal();});
 document.querySelector('#close-install').onclick=()=>dialog.close();
-if('serviceWorker' in navigator&&window.isSecureContext){navigator.serviceWorker.register('/sw.js').catch(()=>{document.querySelector('#install-note').textContent='La instalación no está disponible ahora. Podés seguir usando SpotiAmp en el navegador.';});}
+if('serviceWorker' in navigator&&window.isSecureContext){navigator.serviceWorker.register(new URL('../sw.js',import.meta.url)).catch(()=>{document.querySelector('#install-note').textContent='La instalación no está disponible ahora. Podés seguir usando SpotiAmp en el navegador.';});}

@@ -21,13 +21,16 @@ with sync_playwright() as p:
   page.locator('.track').click()
   assert 'Modjo' in page.locator('#track-title').inner_text()
   page.locator('#pause').click()
+  page.locator('#connect').click()
+  assert page.locator('#redirect-uri').input_value()==base.rstrip('/')+'/'
+  page.locator('#close-settings').click()
   page.locator('#install').click()
   if page.locator('#install-help').is_visible():page.locator('#close-install').click()
   page.locator('#search').fill('')
   page.screenshot(path=f'/tmp/spotiamp-{width}.png',full_page=True)
- assert page.evaluate("fetch('/manifest.webmanifest').then(r=>r.json()).then(m=>m.display==='standalone'&&m.icons.length===3)")
+ assert page.evaluate("fetch(new URL('manifest.webmanifest',location.href)).then(r=>r.json()).then(m=>m.display==='standalone'&&m.icons.length===3)")
  page.evaluate('navigator.serviceWorker.ready')
- assert page.evaluate("caches.open('spotiamp-shell-v1').then(c=>c.keys()).then(k=>k.length===10)")
+ assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v2')))).then(c=>c.keys()).then(k=>k.length===10)")
  context.set_offline(True)
  page.reload(wait_until='load')
  assert page.locator('.track').count()==6
