@@ -1,6 +1,6 @@
 import {formatTime,filterTracks,mapTrack,authorize,callback,connected,disconnect,api} from './spotify.js';
 import {LocalAudio,bands} from './local-audio.js';
-import {frequencyBands,spectrumLevels,SpectrumMotion,SpectrumCanvas} from './spectrum.js';
+import {SpectrumDisplay} from './spectrum-display.js';
 const appBase=new URL('../',import.meta.url).href;
 const $=s=>document.querySelector(s);
 let source=connected()?'spotify':'local',library=[],tracks=[],current=null,position=0,playing=false,shuffle=false,repeat=false,searchId=0,polling=false,epoch=0,spotifyVolume=true,eqEnabled=true;
@@ -32,31 +32,20 @@ $('#open-files').onclick=()=>$('#files').click();
 $('#files').onchange=safe(async e=>{const files=[...e.target.files];if(!files.length)return;await setSource('local');for(const file of files){if(!file.type.startsWith('audio/')&&!/\.(mp3|wav|ogg|m4a|aac|flac|opus)$/i.test(file.name))continue;const name=file.name.replace(/\.[^.]+$/,'');const parts=name.split(' - ');library.push({id:crypto.randomUUID(),url:URL.createObjectURL(file),name:parts.length>1?parts.slice(1).join(' - '):name,artist:parts.length>1?parts[0]:'Archivo local',duration:0});}tracks=[...library];current=current||library[0]||null;e.target.value='';render();updatePlayer();if(current)await select(current);else status('No se encontraron archivos de audio compatibles.');});
 const spectrumCount=32;
 $('.spectrum').innerHTML='<canvas id="spectrum-canvas" aria-hidden="true"></canvas><span id="spectrum-message">ABRÍ TU MÚSICA</span>';
-const meter=new SpectrumCanvas($('#spectrum-canvas'));
-const motion=new SpectrumMotion(spectrumCount),silence=new Float32Array(spectrumCount),sampledLevels=new Float32Array(spectrumCount);
+const meter=new SpectrumDisplay($('#spectrum-canvas'));
 const spectrumMessage=$('#spectrum-message');
-let bandMap=null,lastFrame=0,frameRequest=0,lastLive=null,settled=false;
+let frameRequest=0,lastLive=null;
 function draw(now=0){
  const live=!!(!isSpotify()&&audio.analyser&&playing);
- if(live!==lastLive){spectrumMessage.hidden=live;lastLive=live;settled=false;}
- let levels=silence;
- if(live){
-  bandMap??=frequencyBands(audio.context.sampleRate,audio.analyser.fftSize,spectrumCount);
-  audio.analyser.getFloatFrequencyData(audio.data);
-  levels=spectrumLevels(audio.data,bandMap,sampledLevels);
- }
- if(live||!settled){
-  motion.update(levels,lastFrame?(now-lastFrame)/1000:1/60);
-  meter.draw(motion.levels,motion.peaks);
-  settled=!live&&motion.peaks.every(value=>value<.001);
- }
- lastFrame=now;
+ if(live!==lastLive){spectrumMessage.hidden=live;lastLive=live;}
+ if(live)audio.analyser.getFloatFrequencyData(audio.data);
+ meter.update({live,data:audio.data,sampleRate:audio.context?.sampleRate,fftSize:audio.analyser?.fftSize,now});
  frameRequest=requestAnimationFrame(draw);
 }
-// Avoid processing an invisible page; resume from audio's current signal.
 addEventListener('visibilitychange',()=>{
  cancelAnimationFrame(frameRequest);
- if(!document.hidden){lastFrame=0;settled=false;frameRequest=requestAnimationFrame(draw);}
+ if(document.hidden)meter.update({live:false,now:performance.now()});
+ else frameRequest=requestAnimationFrame(draw);
 });
 frameRequest=requestAnimationFrame(draw);
 ['PRE',...bands.map(f=>f>=1000?(f/1000)+'K':String(f))].forEach((f,i)=>{const label=document.createElement('label');const input=document.createElement('input');input.type='range';input.min=-12;input.max=12;input.value=0;input.step=1;input.setAttribute('aria-label',i?`Ecualizador ${f} Hz`:'Preamplificación');input.oninput=()=>{audio.equalize(i,eqEnabled?Number(input.value):0);drawCurve();input.setAttribute('aria-valuetext',input.value+' dB');status(`${f}: ${input.value} dB`);};const span=document.createElement('span');span.textContent=f;label.append(input,span);$('.equalizer').append(label);});

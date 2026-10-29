@@ -59,27 +59,22 @@ export class SpectrumMotion{
  }
 }
 
-// Draw the whole meter in one canvas. No per-frame element resizing or CSS masks.
-export class SpectrumCanvas {
+// Shared renderer for the main-thread fallback and the dedicated worker.
+export class SpectrumSurface {
  constructor(canvas){
-  this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});
+  this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
   this.width=0;this.height=0;this.scale=1;
-  this.resizeObserver=new ResizeObserver(entries=>{
-   const {width,height}=entries[0].contentRect;
-   this.resize(width,height);
-  });
-  this.resizeObserver.observe(canvas);
  }
- resize(width,height){
+ resize(width,height,scale=1){
   if(!width||!height)return;
-  this.width=width;this.height=height;this.scale=Math.min(devicePixelRatio||1,2);
+  this.width=width;this.height=height;this.scale=Math.min(scale,1.5);
   this.canvas.width=Math.round(width*this.scale);this.canvas.height=Math.round(height*this.scale);
   this.ctx.setTransform(this.scale,0,0,this.scale,0,0);
   const gradient=this.ctx.createLinearGradient(0,height,0,0);
   gradient.addColorStop(0,'#278c17');gradient.addColorStop(.55,'#62d02a');
   gradient.addColorStop(.8,'#bfd638');gradient.addColorStop(.94,'#d6a43a');gradient.addColorStop(1,'#c87b30');
   this.gradient=gradient;
-  this.background=document.createElement('canvas');this.background.width=this.canvas.width;this.background.height=this.canvas.height;
+  this.background=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(this.canvas.width,this.canvas.height):Object.assign(document.createElement('canvas'),{width:this.canvas.width,height:this.canvas.height});
   const bg=this.background.getContext('2d');bg.scale(this.scale,this.scale);bg.fillStyle='#000a02';bg.fillRect(0,0,width,height);
   bg.fillStyle='#193124';for(let x=1;x<width;x+=3)for(let y=1;y<height;y+=3)bg.fillRect(x,y,.5,.5);
   if(this.levels)this.draw(this.levels,this.peaks);
