@@ -31,3 +31,9 @@ Se reemplaza el layout alto por tres módulos compactos: player con reloj/espect
 Referencia observada: clip del usuario de Winamp reproduciendo la introducción de DJ Mike Llama. Se compararon fotogramas consecutivos y se reprodujo localmente el audio del clip para revisar el comportamiento, sin incluir esos archivos en la app ni el repositorio.
 
 Se sustituye el ataque instantáneo por una subida exponencial de 14 ms y la caída exponencial por descenso con aceleración. Los picos blancos se retienen 140 ms y caen independientemente, más despacio que las barras. Bandas Mel sin bins iniciales duplicados; escala de amplitud con margen entre señales débiles y golpes fuertes, evitando una pared uniforme de barras altas. Colores fijos por altura: verde, amarillo y ámbar; rejilla tenue y segmentos de 2px. La escala anterior en dB y su caída de 85 ms quedan reemplazadas por este ajuste. La animación conserva datos de audio reales y no modifica la reproducción.
+
+## Renderizado móvil 2.1
+
+Se reemplazan los 64 elementos de barras/picos por un único canvas con fondo y gradiente preparados al cambiar el tamaño. Durante la animación no se cambian estilos ni dimensiones de elementos HTML. Se reutilizan los arrays del analizador, se pausa el bucle al ocultar la página y se evita reescribir textos que no cambiaron. El visualizador tiene 36px de alto y separadores LED translúcidos para conservar los cambios fraccionarios de altura. Esto reduce trabajo de layout; la fluidez efectiva en cada teléfono requiere comprobarse en el dispositivo.
+
+Comparación local de 4 segundos, Chromium con CPU limitada 4×, viewport 390×844 y DPR 2, reproduciendo el mismo audio: versión DOM 211 cuadros (~53/s), 167 layouts y 213 recálculos de estilos; canvas 241 cuadros (~60/s), 16 layouts y 16 recálculos. Es una medición de laboratorio, no una prueba del teléfono del usuario.

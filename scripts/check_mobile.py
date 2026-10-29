@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
   page.wait_for_function("document.querySelector('#play-state').textContent==='REPRODUCIENDO'")
   assert page.locator('.track').count()==2
   page.wait_for_function("document.querySelector('#duration').textContent==='00:12'")
-  page.wait_for_function("[...document.querySelectorAll('.spectrum i')].some(e=>parseFloat(e.style.height)>10)")
+  page.wait_for_function("(()=>{const c=document.querySelector('#spectrum-canvas'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;for(let i=0;i<d.length;i+=4)if(d[i+1]>100&&d[i+1]>d[i]*1.1)return true;return false;})()")
   page.locator('#pause').click();page.wait_for_function("!document.querySelector('.player').classList.contains('playing')")
   page.locator('#play').click();page.wait_for_function("document.querySelector('.player').classList.contains('playing')")
   page.locator('#seek').evaluate("e=>{e.value=5;e.dispatchEvent(new Event('change'))}")
@@ -78,7 +78,7 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
  page.locator('#connect').click();assert page.locator('#redirect-uri').input_value()==base;page.locator('#close-settings').click()
  page.locator('#source').select_option('local')
  page.evaluate('navigator.serviceWorker.ready')
- assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v6')))).then(c=>c.keys()).then(k=>k.length===12)")
+ assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v7')))).then(c=>c.keys()).then(k=>k.length===12)")
  context.set_offline(True);page.reload(wait_until='load');page.locator('#source').select_option('local')
  assert page.locator('#open-files').is_visible()
  page.locator('#files').set_input_files(files)

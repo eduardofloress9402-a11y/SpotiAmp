@@ -61,3 +61,5 @@ python3 scripts/check_mobile.py
 ### Analizador estilo Winamp
 
 El espectro usa 32 bandas perceptuales (escala Mel), subida suavizada de 14 ms, caída progresiva y marcadores de pico independientes. La escala de amplitud conserva diferencias entre bandas en lugar de mantenerlas todas arriba. Se mide el audio real después del EQ y antes del volumen de salida; no es una animación automática. Prueba adicional con pulsos de graves/agudos y silencio: `python3 scripts/check_spectrum.py` (mismos requisitos y BASE_URL que la prueba móvil). La respuesta depende de la grabación; Spotify sigue sin exponer su señal para análisis.
+
+La versión 2.1 dibuja barras y picos en un solo canvas, sin cambiar el layout de la página por cuadro. Las pruebas de pulsos leen los píxeles renderizados y comprueban cero mutaciones HTML durante la animación. La actualización se identifica con «SPOTIAMP 2.1» junto al selector de fuente. El rendimiento de Chromium de escritorio no garantiza la misma frecuencia de cuadros en todos los teléfonos.

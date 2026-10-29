@@ -10,3 +10,6 @@
 
 /* Fixed color zones, like the classic spectrum: bars reveal amber only at tall hits. */
 .spectrum{background-image:radial-gradient(#33504a55 .5px,transparent .5px);background-size:3px 3px}.spectrum i{background:linear-gradient(to top,#237e13 0%,#5bcc24 58%,#b5d42a 78%,#d3a53c 91%,#c66e28 100%);background-size:100% 29px;background-position:bottom;mask-image:repeating-linear-gradient(to top,#000 0 2px,transparent 2px 3px)}.spectrum-peak{background:#d1d2cc;height:1px;box-shadow:0 0 1px #b5c0bd}
+
+/* Single drawing surface, isolated from the rest of the player layout. */
+.spectrum{display:block;height:36px;padding:0;contain:strict;background:#000a02;isolation:isolate}.spectrum canvas{display:block;width:100%;height:100%}#spectrum-message{pointer-events:none}

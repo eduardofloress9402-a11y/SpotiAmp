@@ -1,6 +1,6 @@
 import {formatTime,filterTracks,mapTrack,authorize,callback,connected,disconnect,api} from './spotify.js';
 import {LocalAudio,bands} from './local-audio.js';
-import {frequencyBands,spectrumLevels,SpectrumMotion} from './spectrum.js';
+import {frequencyBands,spectrumLevels,SpectrumMotion,SpectrumCanvas} from './spectrum.js';
 const appBase=new URL('../',import.meta.url).href;
 const $=s=>document.querySelector(s);
 let source=connected()?'spotify':'local',library=[],tracks=[],current=null,position=0,playing=false,shuffle=false,repeat=false,searchId=0,polling=false,epoch=0,spotifyVolume=true,eqEnabled=true;
@@ -16,7 +16,8 @@ function updateConnection(){const live=connected();$('#connect').innerHTML=live?
  const eqAvailable=!isSpotify()&&!!audio.context;document.querySelectorAll('.equalizer input').forEach(input=>input.disabled=!eqAvailable);$('#eq-note').textContent=isSpotify()?'Spotify no permite ecualizar su audio':'Agregá y reproducí un archivo para activar el EQ';if(eqAvailable)$('#eq-note').textContent='EQ REAL · AUDIO DEL DISPOSITIVO';$('#eq-reset').disabled=!eqAvailable;$('#eq-power').disabled=!eqAvailable;$('#eq-preset').disabled=!eqAvailable;
  $('#spectrum-note').textContent=isSpotify()?'SIN ACCESO AL AUDIO':'ANALIZADOR REAL';$('#spectrum-message').textContent=isSpotify()?'SPOTIFY CONNECT':'ABRÍ TU MÚSICA';
 }
-function updatePlayer(){ $('#track-title').textContent=current?`${current.artist} — ${current.name}`:'SpotiAmp — Tu música, otra época';$('#duration').textContent=formatTime(current?.duration||0);$('#time').textContent=formatTime(position);$('#seek').max=current?.duration||1;$('#seek').value=position;$('.player').classList.toggle('playing',playing);$('#play-state').textContent=playing?'REPRODUCIENDO':current?'EN PAUSA':'LISTO';$('#play').setAttribute('aria-pressed',playing);$('#shuffle').setAttribute('aria-pressed',shuffle);$('#repeat').setAttribute('aria-pressed',repeat);
+function setText(selector,value){const element=$(selector);if(element.textContent!==value)element.textContent=value;}
+function updatePlayer(){ setText('#track-title',current?`${current.artist} — ${current.name}`:'SpotiAmp — Tu música, otra época');setText('#duration',formatTime(current?.duration||0));setText('#time',formatTime(position));$('#seek').max=current?.duration||1;$('#seek').value=position;$('.player').classList.toggle('playing',playing);$('#play-state').textContent=playing?'REPRODUCIENDO':current?'EN PAUSA':'LISTO';$('#play').setAttribute('aria-pressed',playing);$('#shuffle').setAttribute('aria-pressed',shuffle);$('#repeat').setAttribute('aria-pressed',repeat);
  for(const id of ['pause','stop','seek'])$('#'+id).disabled=!current;for(const id of ['previous','next'])$('#'+id).disabled=!isSpotify()&&library.length<2;
  $('#play').disabled=!isSpotify()&&!current;$('#shuffle').disabled=!isSpotify()&&!library.length;$('#repeat').disabled=!isSpotify()&&!library.length;
  $('#volume').disabled=isSpotify()&&!spotifyVolume;$('#volume').title=isSpotify()&&!spotifyVolume?'Este dispositivo Spotify no permite volumen remoto':'';
@@ -30,28 +31,34 @@ $('#source').onchange=safe(e=>setSource(e.target.value));
 $('#open-files').onclick=()=>$('#files').click();
 $('#files').onchange=safe(async e=>{const files=[...e.target.files];if(!files.length)return;await setSource('local');for(const file of files){if(!file.type.startsWith('audio/')&&!/\.(mp3|wav|ogg|m4a|aac|flac|opus)$/i.test(file.name))continue;const name=file.name.replace(/\.[^.]+$/,'');const parts=name.split(' - ');library.push({id:crypto.randomUUID(),url:URL.createObjectURL(file),name:parts.length>1?parts.slice(1).join(' - '):name,artist:parts.length>1?parts[0]:'Archivo local',duration:0});}tracks=[...library];current=current||library[0]||null;e.target.value='';render();updatePlayer();if(current)await select(current);else status('No se encontraron archivos de audio compatibles.');});
 const spectrumCount=32;
-$('.spectrum').innerHTML='<span id="spectrum-message">ABRÍ TU MÚSICA</span>'+Array.from({length:spectrumCount},(_,i)=>`<i style="height:0%"></i><b class="spectrum-peak" style="left:${i*100/spectrumCount}%;width:calc(${100/spectrumCount}% - 1px);bottom:0%"></b>`).join('');
-const bars=[...document.querySelectorAll('.spectrum i')],peaks=[...document.querySelectorAll('.spectrum-peak')];
-const motion=new SpectrumMotion(spectrumCount),silence=new Float32Array(spectrumCount);
-let bandMap=null,lastFrame=0;
+$('.spectrum').innerHTML='<canvas id="spectrum-canvas" aria-hidden="true"></canvas><span id="spectrum-message">ABRÍ TU MÚSICA</span>';
+const meter=new SpectrumCanvas($('#spectrum-canvas'));
+const motion=new SpectrumMotion(spectrumCount),silence=new Float32Array(spectrumCount),sampledLevels=new Float32Array(spectrumCount);
+const spectrumMessage=$('#spectrum-message');
+let bandMap=null,lastFrame=0,frameRequest=0,lastLive=null,settled=false;
 function draw(now=0){
- const live=!isSpotify()&&audio.analyser&&playing;
- $('#spectrum-message').hidden=!!live;
+ const live=!!(!isSpotify()&&audio.analyser&&playing);
+ if(live!==lastLive){spectrumMessage.hidden=live;lastLive=live;settled=false;}
  let levels=silence;
  if(live){
   bandMap??=frequencyBands(audio.context.sampleRate,audio.analyser.fftSize,spectrumCount);
   audio.analyser.getFloatFrequencyData(audio.data);
-  levels=spectrumLevels(audio.data,bandMap);
+  levels=spectrumLevels(audio.data,bandMap,sampledLevels);
  }
- motion.update(levels,lastFrame?(now-lastFrame)/1000:1/60);lastFrame=now;
- for(let i=0;i<bars.length;i++){
-  bars[i].style.height=`${motion.levels[i]*100}%`;
-  peaks[i].style.bottom=`${motion.peaks[i]*94}%`;
-  peaks[i].style.opacity=motion.peaks[i]>.02?'1':'0';
+ if(live||!settled){
+  motion.update(levels,lastFrame?(now-lastFrame)/1000:1/60);
+  meter.draw(motion.levels,motion.peaks);
+  settled=!live&&motion.peaks.every(value=>value<.001);
  }
- requestAnimationFrame(draw);
+ lastFrame=now;
+ frameRequest=requestAnimationFrame(draw);
 }
-draw();
+// Avoid processing an invisible page; resume from audio's current signal.
+addEventListener('visibilitychange',()=>{
+ cancelAnimationFrame(frameRequest);
+ if(!document.hidden){lastFrame=0;settled=false;frameRequest=requestAnimationFrame(draw);}
+});
+frameRequest=requestAnimationFrame(draw);
 ['PRE',...bands.map(f=>f>=1000?(f/1000)+'K':String(f))].forEach((f,i)=>{const label=document.createElement('label');const input=document.createElement('input');input.type='range';input.min=-12;input.max=12;input.value=0;input.step=1;input.setAttribute('aria-label',i?`Ecualizador ${f} Hz`:'Preamplificación');input.oninput=()=>{audio.equalize(i,eqEnabled?Number(input.value):0);drawCurve();input.setAttribute('aria-valuetext',input.value+' dB');status(`${f}: ${input.value} dB`);};const span=document.createElement('span');span.textContent=f;label.append(input,span);$('.equalizer').append(label);});
 function drawCurve(){const values=[...document.querySelectorAll('.equalizer input')].slice(1).map(input=>eqEnabled?Number(input.value):0);$('#eq-curve-line').setAttribute('d',values.map((value,i)=>`${i?'L':'M'}${i*200/(values.length-1)} ${13-value*.85}`).join(' '));}
 function applyEQ(){document.querySelectorAll('.equalizer input').forEach((input,i)=>{audio.equalize(i,eqEnabled?Number(input.value):0);input.setAttribute('aria-valuetext',input.value+' dB');});drawCurve();}
