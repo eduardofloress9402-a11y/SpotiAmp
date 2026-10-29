@@ -60,4 +60,4 @@ python3 scripts/check_mobile.py
 
 ### Analizador estilo Winamp
 
-El espectro usa 32 bandas logarítmicas, respuesta rápida y marcadores de pico. Se mide el audio real después del EQ y antes del volumen de salida; no es una animación automática. Prueba adicional con pulsos de graves/agudos y silencio: `python3 scripts/check_spectrum.py` (mismos requisitos y BASE_URL que la prueba móvil). La respuesta depende de la grabación; Spotify sigue sin exponer su señal para análisis.
+El espectro usa 32 bandas perceptuales (escala Mel), subida suavizada de 14 ms, caída progresiva y marcadores de pico independientes. La escala de amplitud conserva diferencias entre bandas en lugar de mantenerlas todas arriba. Se mide el audio real después del EQ y antes del volumen de salida; no es una animación automática. Prueba adicional con pulsos de graves/agudos y silencio: `python3 scripts/check_spectrum.py` (mismos requisitos y BASE_URL que la prueba móvil). La respuesta depende de la grabación; Spotify sigue sin exponer su señal para análisis.

@@ -7,3 +7,6 @@
 @media(max-width:600px){.playlist-panel .titlebar{min-height:29px}#open-files{min-height:24px}}
 /* Direct frame updates: CSS interpolation would blur the percussion attacks. */
 .spectrum{gap:1px;padding:0;isolation:isolate}.spectrum i{transition:none;background:repeating-linear-gradient(to top,transparent 0 2px,#000a02 2px 3px),linear-gradient(to top,#299918 0%,#6be32b 65%,#d8e75c 100%)}.spectrum-peak{position:absolute;z-index:1;height:1px;background:#d3e88b;pointer-events:none;transition:none}#spectrum-message{z-index:2}
+
+/* Fixed color zones, like the classic spectrum: bars reveal amber only at tall hits. */
+.spectrum{background-image:radial-gradient(#33504a55 .5px,transparent .5px);background-size:3px 3px}.spectrum i{background:linear-gradient(to top,#237e13 0%,#5bcc24 58%,#b5d42a 78%,#d3a53c 91%,#c66e28 100%);background-size:100% 29px;background-position:bottom;mask-image:repeating-linear-gradient(to top,#000 0 2px,transparent 2px 3px)}.spectrum-peak{background:#d1d2cc;height:1px;box-shadow:0 0 1px #b5c0bd}

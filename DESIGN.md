@@ -25,3 +25,9 @@ Se reemplaza el layout alto por tres módulos compactos: player con reloj/espect
 ## Analizador dinámico
 
 32 bandas logarítmicas entre 45 Hz y 16 kHz (ajustadas al sample rate), FFT de 2048 muestras y suavizado del analizador de 0,08. Magnitudes reales en dB, rango visual de −78 a −18 dB y compensación fija de agudos de hasta 6 dB. Ataque inmediato, caída exponencial de 85 ms y marcadores de pico con retención breve y caída independiente del refresco. No se interpolan las alturas con CSS y no se generan datos aleatorios; silencio y pausa vuelven a cero. El análisis no modifica el volumen ni el audio reproducido.
+
+## Movimiento afinado con el video aportado
+
+Referencia observada: clip del usuario de Winamp reproduciendo la introducción de DJ Mike Llama. Se compararon fotogramas consecutivos y se reprodujo localmente el audio del clip para revisar el comportamiento, sin incluir esos archivos en la app ni el repositorio.
+
+Se sustituye el ataque instantáneo por una subida exponencial de 14 ms y la caída exponencial por descenso con aceleración. Los picos blancos se retienen 140 ms y caen independientemente, más despacio que las barras. Bandas Mel sin bins iniciales duplicados; escala de amplitud con margen entre señales débiles y golpes fuertes, evitando una pared uniforme de barras altas. Colores fijos por altura: verde, amarillo y ámbar; rejilla tenue y segmentos de 2px. La escala anterior en dB y su caída de 85 ms quedan reemplazadas por este ajuste. La animación conserva datos de audio reales y no modifica la reproducción.
