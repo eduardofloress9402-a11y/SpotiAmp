@@ -23,13 +23,13 @@ test('separate frequency response and amplitude headroom instead of a wall of hi
 });
 test('smooth fast rise, controlled fall, separately floating peaks and refresh-independent motion',()=>{
  const m=new SpectrumMotion(1);m.update([.9],1/60);
- assert.ok(m.levels[0]>.6&&m.levels[0]<.9,'first frame responds without an instantaneous square jump');
+ assert.ok(m.levels[0]>.4&&m.levels[0]<.6,'first frame responds without an instantaneous square jump');
  for(let i=0;i<2;i++)m.update([.9],1/60);
  assert.ok(m.levels[0]>.87,'near full response in 50ms');
  const peak=m.peaks[0];for(let i=0;i<6;i++)m.update([0],1/60);
  assert.ok(m.levels[0]>.4&&m.levels[0]<.65);assert.ok(Math.abs(m.peaks[0]-peak)<.001);
  for(let i=0;i<12;i++)m.update([0],1/60);
- assert.ok(m.levels[0]<.01);assert.ok(m.peaks[0]>.7,'peaks remain floating after bars fall');
+ assert.ok(m.levels[0]<.04);assert.ok(m.peaks[0]>.7,'peaks remain floating after bars fall');
  for(let i=0;i<90;i++)m.update([0],1/60);
  assert.ok(m.levels[0]===0&&m.peaks[0]===0);
  const a=new SpectrumMotion(1),b=new SpectrumMotion(1);a.update([1],.1);b.update([1],.1);
@@ -37,4 +37,19 @@ test('smooth fast rise, controlled fall, separately floating peaks and refresh-i
  for(let i=0;i<24;i++)b.update([0],1/120);
  assert.ok(Math.abs(a.levels[0]-b.levels[0])<.001);
  assert.ok(Math.abs(a.peaks[0]-b.peaks[0])<.001);
+});
+
+test('changes in target preserve continuous position and velocity rather than making a sharp corner',()=>{
+ const motion=new SpectrumMotion(1);motion.update([.8],.04);
+ const before=motion.levels[0],velocity=motion.velocity[0];
+ motion.update([0],.00001);
+ assert.ok(Math.abs(motion.levels[0]-before)<.001);
+ assert.ok(Math.abs(motion.velocity[0]-velocity)<.01);
+ const slow=new SpectrumMotion(1),fast=new SpectrumMotion(1);
+ for(let i=0;i<3;i++)slow.update([.8],1/30);
+ for(let i=0;i<12;i++)fast.update([.8],1/120);
+ assert.ok(Math.abs(slow.levels[0]-fast.levels[0])<.001);
+ for(let i=0;i<9;i++)slow.update([0],1/30);
+ for(let i=0;i<36;i++)fast.update([0],1/120);
+ assert.ok(Math.abs(slow.levels[0]-fast.levels[0])<.001);
 });

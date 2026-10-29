@@ -78,7 +78,7 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
  page.locator('#connect').click();assert page.locator('#redirect-uri').input_value()==base;page.locator('#close-settings').click()
  page.locator('#source').select_option('local')
  page.evaluate('navigator.serviceWorker.ready')
- assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v7')))).then(c=>c.keys()).then(k=>k.length===12)")
+ assert page.evaluate("caches.keys().then(keys=>caches.open(keys.find(k=>k.endsWith('-v8')))).then(c=>c.keys()).then(k=>k.length===12)")
  context.set_offline(True);page.reload(wait_until='load');page.locator('#source').select_option('local')
  assert page.locator('#open-files').is_visible()
  page.locator('#files').set_input_files(files)

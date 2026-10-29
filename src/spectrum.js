@@ -30,21 +30,23 @@ export function spectrumLevels(decibels,bands,output=new Float32Array(bands.leng
 export class SpectrumMotion{
  constructor(count=32){
   this.levels=new Float32Array(count);this.peaks=new Float32Array(count);
-  this.hold=new Float32Array(count);this.fall=new Float32Array(count);this.peakFall=new Float32Array(count);
+  this.hold=new Float32Array(count);this.velocity=new Float32Array(count);this.peakFall=new Float32Array(count);
  }
  update(targets,seconds){
   const dt=Math.max(0,Math.min(seconds,.1));
   for(let i=0;i<this.levels.length;i++){
    const target=Math.max(0,Math.min(1,targets[i]||0)),previous=this.levels[i];
-   let level;
-   if(target>=previous){
-    // A short rise softens square jumps without smearing the beat.
-    level=target+(previous-target)*Math.exp(-dt/.014);this.fall[i]=2.8;
-   }else{
-    const speed=this.fall[i];
-    level=Math.max(target,previous-speed*dt-4*dt*dt);
-    this.fall[i]=speed+8*dt;
-   }
+   // Critically damped tracking preserves velocity when the signal changes.
+   // Unlike the old rise/fall branches, it does not snap to a new direction.
+   // Exact integration keeps the same timing at 30, 60 and 120Hz.
+   const omega=target>=previous?110:18;
+   const displacement=previous-target;
+   const transient=(this.velocity[i]+omega*displacement)*dt;
+   const decay=Math.exp(-omega*dt);
+   let level=target+(displacement+transient)*decay;
+   this.velocity[i]=(this.velocity[i]-omega*transient)*decay;
+   if(level<0||level>1){level=Math.max(0,Math.min(1,level));this.velocity[i]=0;}
+   if(target===0&&level<.0001&&Math.abs(this.velocity[i])<.002){level=0;this.velocity[i]=0;}
    this.levels[i]=level;
    if(level>=this.peaks[i]){this.peaks[i]=level;this.hold[i]=.14;this.peakFall[i]=.08;}
    else{
@@ -96,7 +98,7 @@ export class SpectrumCanvas {
   // Translucent LED separators keep the top edge moving at fractional heights.
   ctx.fillStyle='#000a0260';for(let y=height-3;y>0;y-=3)ctx.fillRect(0,y,width,.65);
   ctx.fillStyle='#cbd4ce';for(let i=0;i<peaks.length;i++){
-   if(peaks[i]>.015)ctx.fillRect(i*step,Math.max(0,height-peaks[i]*(height-1)-1),barWidth,1/this.scale);
+   if(peaks[i]>.015)ctx.fillRect(i*step,Math.max(0,height-peaks[i]*(height-1)-1),barWidth,1);
   }
  }
 }
